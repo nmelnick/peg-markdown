@@ -6,7 +6,7 @@ endif
 export X
 
 PROGRAM=markdown$(X)
-CFLAGS ?= -Wall -O3 -ansi -D_GNU_SOURCE # -flto for newer GCC versions
+CFLAGS ?= -Wall -O3 -ansi -D_GNU_SOURCE -fPIC # -flto for newer GCC versions
 OBJS=markdown_parser.o markdown_output.o markdown_lib.o utility_functions.o parsing_functions.o odf.o
 PEGDIR=peg-0.1.9
 LEG=$(PEGDIR)/leg$(X)
@@ -25,6 +25,9 @@ $(PROGRAM) : markdown.c $(OBJS)
 
 markdown_parser.c : markdown_parser.leg $(LEG) markdown_peg.h parsing_functions.c utility_functions.c
 	$(LEG) -o $@ $<
+
+so:
+	$(CC) `$(PKG_CONFIG) --cflags glib-2.0` $(CFLAGS) -shared -o libmarkdown.so $< $(OBJS) `$(PKG_CONFIG) --libs glib-2.0`
 
 .PHONY: clean test
 
